@@ -28,7 +28,8 @@ public class MatrixUtil {
                                     rowC[col] += elA * rowB[col];
                                 }
                             }
-                        })).get();
+                        }))
+                .get();
 
         return matrixC;
     }
