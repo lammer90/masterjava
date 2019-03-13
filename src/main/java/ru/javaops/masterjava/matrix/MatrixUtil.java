@@ -1,11 +1,13 @@
 package ru.javaops.masterjava.matrix;
 
-import ru.javaops.masterjava.service.MailService;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.List;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * gkislin
@@ -18,14 +20,17 @@ public class MatrixUtil {
         final int matrixSize = matrixA.length;
         final int threadCount = Runtime.getRuntime().availableProcessors();
         final int[][] matrixC = new int[matrixSize][matrixSize];
-        final ExecutorService exe = Executors.newFixedThreadPool(10);
-        for (int i = 0; i < threadCount; i++){
-            int j = i;
-            int kol = matrixSize/threadCount;
-            exe.submit(() -> concurrentThreadMultiply(matrixA, matrixB, matrixC,kol*j, kol*j + kol));
-        }
-        exe.shutdown();
-        exe.awaitTermination(1, TimeUnit.SECONDS);
+        int kol = matrixSize / threadCount;
+
+        List<Callable<int[][]>> list = Stream.iterate(0, n -> n + 1)
+                .limit(threadCount)
+                .map(n -> {
+                    Callable<int[][]> callable = () -> concurrentThreadMultiply(matrixA, matrixB, matrixC, kol * n, kol* n + kol);
+                    return callable;
+                })
+                .collect(Collectors.toList());
+
+        executor.invokeAll(list);
         return matrixC;
     }
 
