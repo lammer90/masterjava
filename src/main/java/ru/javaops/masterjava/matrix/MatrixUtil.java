@@ -16,11 +16,13 @@ public class MatrixUtil {
     // TODO implement parallel multiplication matrixA*matrixB
     public static int[][] concurrentMultiply(int[][] matrixA, int[][] matrixB, ExecutorService executor) throws InterruptedException, ExecutionException {
         final int matrixSize = matrixA.length;
+        final int threadCount = Runtime.getRuntime().availableProcessors();
         final int[][] matrixC = new int[matrixSize][matrixSize];
         final ExecutorService exe = Executors.newFixedThreadPool(10);
-        for (int i = 0; i < 10; i++){
+        for (int i = 0; i < threadCount; i++){
             int j = i;
-            exe.submit(() -> concurrentThreadMultiply(matrixA, matrixB, matrixC,1000/10*j, 1000/10*j +1000/10));
+            int kol = matrixSize/threadCount;
+            exe.submit(() -> concurrentThreadMultiply(matrixA, matrixB, matrixC,kol*j, kol*j + kol));
         }
         exe.shutdown();
         exe.awaitTermination(1, TimeUnit.SECONDS);
