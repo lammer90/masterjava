@@ -2,17 +2,31 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://javaops.ru payload.xsd">
     <Users>
-        <User flag="active" city="kiv">
-            <email>gmail@gmail.com</email>
+        <User flag="active" city="kiv" email="gmail@gmail.com">
             <fullName>Full Name</fullName>
+            <groups>
+                <group>base03</group>
+                <group>top02</group>
+                <group>mast01</group>
+            </groups>
         </User>
-        <User flag="superuser" city="spb">
-            <email>admin@javaops.ru</email>
+        <User flag="superuser" city="spb" email="admin@javaops.ru">
             <fullName>Admin</fullName>
+            <groups>
+                <group>base01</group>
+                <group>top01</group>
+                <group>base02</group>
+                <group>top02</group>
+                <group>mast01</group>
+                <group>mast02</group>
+            </groups>
         </User>
-        <User flag="deleted" city="spb">
-            <email>mail@yandex.ru</email>
+        <User flag="deleted" city="spb" email="mail@yandex.ru">
             <fullName>Deleted</fullName>
+            <groups>
+                <group>base01</group>
+                <group>top01</group>
+            </groups>
         </User>
     </Users>
     <Cities>
@@ -20,4 +34,60 @@
         <City id="kiv">Киев</City>
         <City id="mnsk">Минск</City>
     </Cities>
+    <Projects>
+        <Project>
+            <name>BaseJava</name>
+            <description>base quality</description>
+            <Groups>
+                <Group id="base01">
+                    <name>basejava01</name>
+                    <type>FINISHED</type>
+                </Group>
+                <Group id="base02">
+                    <name>basejava02</name>
+                    <type>FINISHED</type>
+                </Group>
+                <Group id="base03">
+                    <name>basejava03</name>
+                    <type>CURRENT</type>
+                </Group>
+                <Group id="base04">
+                    <name>basejava04</name>
+                    <type>REGISTERING</type>
+                </Group>
+            </Groups>
+        </Project>
+        <Project>
+            <name>TopJava</name>
+            <description>standart quality</description>
+            <Groups>
+                <Group id="top01">
+                    <name>topjava01</name>
+                    <type>FINISHED</type>
+                </Group>
+                <Group id="top02">
+                    <name>topjava02</name>
+                    <type>CURRENT</type>
+                </Group>
+                <Group id="top03">
+                    <name>topjava03</name>
+                    <type>REGISTERING</type>
+                </Group>
+            </Groups>
+        </Project>
+        <Project>
+            <name>MasterJava</name>
+            <description>advanced quality</description>
+            <Groups>
+                <Group id="mast01">
+                    <name>masterjava01</name>
+                    <type>CURRENT</type>
+                </Group>
+                <Group id="mast02">
+                    <name>masterjava02</name>
+                    <type>REGISTERING</type>
+                </Group>
+            </Groups>
+        </Project>
+    </Projects>
 </Payload>
