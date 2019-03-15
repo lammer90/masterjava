@@ -18,8 +18,8 @@
         <City id="mnsk">Минск</City>
     </Cities>
     <Projects>
-        <Project>
-            <name>BaseJava</name>
+        <Project name="BaseJava">
+            <!--<name>BaseJava</name>-->
             <description>base quality</description>
             <Groups>
                 <Group>
@@ -52,8 +52,8 @@
                 </Group>
             </Groups>
         </Project>
-        <Project>
-            <name>TopJava</name>
+        <Project name="TopJava">
+            <!--<name>TopJava</name>-->
             <description>standart quality</description>
             <Groups>
                 <Group>
@@ -80,8 +80,8 @@
                 </Group>
             </Groups>
         </Project>
-        <Project>
-            <name>MasterJava</name>
+        <Project name="MasterJava">
+            <!--<name>MasterJava</name>-->
             <description>advanced quality</description>
             <Groups>
                 <Group>

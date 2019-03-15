@@ -180,14 +180,4 @@ public class User {
         this.email = value;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "fullName='" + fullName + '\'' +
-                ", id='" + id + '\'' +
-                ", flag=" + flag +
-                ", city=" + city +
-                ", email='" + email + '\'' +
-                '}';
-    }
 }
