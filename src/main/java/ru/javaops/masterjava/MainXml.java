@@ -40,13 +40,9 @@ public class MainXml {
     public static List<User> findUsersByProject(String project, String file) throws JAXBException, IOException{
         Payload payload = JAXB_PARSER.unmarshal(
                 Resources.getResource(file).openStream());
-        return payload.getProjects().getProject().stream()
-                .filter(p -> p.getName().equals(project))
-                .flatMap(p -> p.getGroups().getGroup().stream())
-                .flatMap(g -> g.getUsers().getUser().stream())
-                .map(u -> (User)u.getValue())
-                .distinct()
-                .collect(Collectors.toList());
+        /*return payload.getUsers().getUser().stream()
+                .*/
+        return null;
     }
 
     public static void parseHTML() throws TransformerException, IOException{
