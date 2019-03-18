@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,37 +31,33 @@ public class MainXml {
         JAXB_PARSER.setSchema(Schemas.ofClasspath("payload.xsd"));
     }
 
-    public static void main(String[] args) throws JAXBException, IOException, TransformerException{
-        //parseHTML();
-        System.out.println(findUsersByProject("topjava", "payload.xml"));
+    public static void main(String[] args) throws JAXBException, IOException, TransformerException {
+        parseHTML();
+        //System.out.println(findUsersByProject("topjava", "payload.xml"));
     }
 
-    public static List<User> findUsersByProject(String projectName, String file) throws JAXBException, IOException{
+    public static List<User> findUsersByProject(String projectName, String file) throws JAXBException, IOException {
         Payload payload = JAXB_PARSER.unmarshal(
                 Resources.getResource(file).openStream());
         Project project = payload.getProjects().getProject().stream()
                 .filter(p -> p.getName().equals(projectName))
-                .findFirst().orElse(null);
+                .findFirst().orElseThrow(() -> new IllegalArgumentException("Wrong argument"));
 
         return payload.getUsers().getUser().stream()
                 .filter(u -> !Collections.disjoint(project.getGroup(), u.getGroupRefs()))
+                .sorted(Comparator.comparing(User::getEmail))
                 .collect(Collectors.toList());
     }
 
-    public static void parseHTML() throws TransformerException, IOException{
-        /*try (InputStream xslInputStream = Resources.getResource("usersHTML.xsl").openStream();
-             InputStream xmlInputStream = Resources.getResource("payload.xml").openStream()) {*/
+    public static void parseHTML() throws TransformerException, IOException {
+        String outputFileName = "CompanyInfo.html";
+        try (InputStream xslInputStream = Resources.getResource("usersHTML.xsl").openStream();
+             InputStream xmlInputStream = Resources.getResource("payload.xml").openStream();
+             OutputStream htmlFile = new FileOutputStream(outputFileName)) {
 
-            TransformerFactory tFactory=TransformerFactory.newInstance();
-
-            Source xslDoc=new StreamSource("C:/masterjava/src/main/resources/usersHTML.xsl");
-            Source xmlDoc=new StreamSource("C:/masterjava/src/main/resources/payload.xml");
-
-            String outputFileName="CompanyInfo.html";
-
-            OutputStream htmlFile=new FileOutputStream(outputFileName);
-            Transformer trasform=tFactory.newTransformer(xslDoc);
-            trasform.setParameter("project_name", "MasterJava");
-            trasform.transform(xmlDoc, new StreamResult(htmlFile));
+            XsltProcessor processor = new XsltProcessor(xslInputStream);
+            processor.setParam("project_name", "topjava");
+            processor.transformToFile(xmlInputStream, htmlFile);
+        }
     }
 }
