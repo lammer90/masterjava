@@ -1,10 +1,7 @@
 package ru.javaops.masterjava;
 
 import com.google.common.io.Resources;
-import ru.javaops.masterjava.xml.schema.Group;
-import ru.javaops.masterjava.xml.schema.ObjectFactory;
-import ru.javaops.masterjava.xml.schema.Payload;
-import ru.javaops.masterjava.xml.schema.User;
+import ru.javaops.masterjava.xml.schema.*;
 import ru.javaops.masterjava.xml.util.JaxbParser;
 import ru.javaops.masterjava.xml.util.Schemas;
 import ru.javaops.masterjava.xml.util.XsltProcessor;
@@ -21,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,16 +31,20 @@ public class MainXml {
     }
 
     public static void main(String[] args) throws JAXBException, IOException, TransformerException{
-        parseHTML();
-        /*System.out.println(findUsersByProject("MasterJava", "payload.xml"));*/
+        //parseHTML();
+        System.out.println(findUsersByProject("topjava", "payload.xml"));
     }
 
-    public static List<User> findUsersByProject(String project, String file) throws JAXBException, IOException{
+    public static List<User> findUsersByProject(String projectName, String file) throws JAXBException, IOException{
         Payload payload = JAXB_PARSER.unmarshal(
                 Resources.getResource(file).openStream());
-        /*return payload.getUsers().getUser().stream()
-                .*/
-        return null;
+        Project project = payload.getProjects().getProject().stream()
+                .filter(p -> p.getName().equals(projectName))
+                .findFirst().orElse(null);
+
+        return payload.getUsers().getUser().stream()
+                .filter(u -> !Collections.disjoint(project.getGroup(), u.getGroupRefs()))
+                .collect(Collectors.toList());
     }
 
     public static void parseHTML() throws TransformerException, IOException{
