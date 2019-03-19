@@ -1,4 +1,4 @@
-package ru.javaops.masterjava.matrix;
+package ru.javaops.masterjava.martix;
 
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;

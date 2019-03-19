@@ -1,4 +1,4 @@
-package ru.javaops.masterjava.matrix;
+package ru.javaops.masterjava.martix;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
