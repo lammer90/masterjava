@@ -43,16 +43,4 @@ public class PayloadServlet extends HttpServlet {
         req.setAttribute("users", users);
         req.getRequestDispatcher("/WEB-INF/jsp/upload.jsp").forward(req, resp);
     }
-
-    private String getFileName(final Part part) {
-        final String partHeader = part.getHeader("content-disposition");
-
-        for (String content : part.getHeader("content-disposition").split(";")) {
-            if (content.trim().startsWith("filename")) {
-                return content.substring(
-                        content.indexOf('=') + 1).trim().replace("\"", "");
-            }
-        }
-        return null;
-    }
 }
