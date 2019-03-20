@@ -5,8 +5,9 @@
   Time: 15:12
   To change this template use File | Settings | File Templates.
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%>
+<%@taglib uri="http://struts.apache.org/tags-logic" prefix="logic"%>
+<% pageContext.setAttribute("users",ru.javaops.masterjava.web.PayloadForm.users); %>
 <html>
 <head>
     <title>Users</title>
@@ -19,20 +20,19 @@
         <th>Email</th>
         <th>Flag</th>
     </tr>
-    <c:forEach var="element" items="${users}">
-        <jsp:useBean id="element" type="ru.javaops.masterjava.xml.schema.User"/>
+    <logic:iterate id="user"  name="users"  >
         <tr>
             <td>
-                    ${element.value}
+                <bean:write name="user" property="value"/>
             </td>
             <td>
-                    ${element.email}
+                <bean:write name="user" property="email"/>
             </td>
             <td>
-                    ${element.flag}
+                <bean:write name="user" property="flag"/>
             </td>
         </tr>
-    </c:forEach>
+    </logic:iterate>
 </table>
 </body>
 </html>
