@@ -2,7 +2,6 @@ package ru.javaops.masterjava.upload;
 
 import org.thymeleaf.context.WebContext;
 import ru.javaops.masterjava.persist.DBIProvider;
-import ru.javaops.masterjava.persist.dao.AbstractDao;
 import ru.javaops.masterjava.persist.dao.UserDao;
 import ru.javaops.masterjava.persist.model.User;
 
@@ -15,8 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 import static ru.javaops.masterjava.common.web.ThymeleafListener.engine;
@@ -46,18 +48,58 @@ public class UploadServlet extends HttpServlet {
             }
             try (InputStream is = filePart.getInputStream()) {
                 List<User> users = userProcessor.process(is);
-                webContext.setVariable("users", users);
 
-                UserDao dao = DBIProvider.getDao(UserDao.class);
+                List<User> repeatUsers = sendToBase(users, k);
 
-                Map<Integer, List<User>> map = users.stream().collect(Collectors.groupingBy(u -> users.indexOf(u) / k));
-                map.forEach((a, b) -> dao.insertBatchGeneratedId(b));
-
+                webContext.setVariable("users", repeatUsers);
                 engine.process("result", webContext, resp.getWriter());
             }
         } catch (Exception e) {
             webContext.setVariable("exception", e);
             engine.process("exception", webContext, resp.getWriter());
+        }
+    }
+
+    private List<User> sendToBase(List<User> users, int k) throws InterruptedException, ExecutionException {
+        List<User> result = Collections.synchronizedList(new ArrayList<>());
+        CompletionService<ResultPair> service = new ExecutorCompletionService<>(Executors.newFixedThreadPool(8));
+        ExecutorService errorService = Executors.newFixedThreadPool(8);
+        UserDao dao = DBIProvider.getDao(UserDao.class);
+
+        Map<Integer, List<User>> map = users.stream().collect(Collectors.groupingBy(u -> users.indexOf(u) / k));
+        map.forEach((key, value) -> service.submit(() -> new ResultPair(dao.insertBatchGeneratedId(value), key)));
+
+        for (int i = 0; i < map.size(); i++) {
+            ResultPair pair = service.poll(10, TimeUnit.SECONDS).get();
+            errorService.submit(() -> {
+                int[] c = pair.getC();
+                for (int j = 0; j < c.length; j++) {
+                    if (c[j] == 0) {
+                        result.add(map.get(pair.getNumberOfMap()).get(j));
+                    }
+                }
+            });
+        }
+        errorService.shutdown();
+        errorService.awaitTermination(10, TimeUnit.SECONDS);
+        return result;
+    }
+
+    private class ResultPair {
+        int[] c;
+        int numberOfMap;
+
+        public ResultPair(int[] c, int numberOfMap) {
+            this.c = c;
+            this.numberOfMap = numberOfMap;
+        }
+
+        public int[] getC() {
+            return c;
+        }
+
+        public int getNumberOfMap() {
+            return numberOfMap;
         }
     }
 }
