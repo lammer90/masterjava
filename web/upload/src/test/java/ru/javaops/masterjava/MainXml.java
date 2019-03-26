@@ -99,7 +99,7 @@ public class MainXml {
 
             JaxbParser parser = new JaxbParser(ObjectFactory.class);
             JaxbUnmarshaller unmarshaller = parser.createUnmarshaller();
-            while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
+            while (processor.doUntil(XMLEvent.START_ELEMENT, "User", false)) {
                 String groupRefs = processor.getAttribute("groupRefs");
                 if (!Collections.disjoint(groupNames, Splitter.on(' ').splitToList(nullToEmpty(groupRefs)))) {
                     User user = unmarshaller.unmarshal(processor.getReader(), User.class);

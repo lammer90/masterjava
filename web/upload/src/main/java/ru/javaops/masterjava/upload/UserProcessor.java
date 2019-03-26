@@ -4,9 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import ru.javaops.masterjava.persist.DBIProvider;
+import ru.javaops.masterjava.persist.dao.CityDao;
 import ru.javaops.masterjava.persist.dao.UserDao;
+import ru.javaops.masterjava.persist.model.City;
 import ru.javaops.masterjava.persist.model.User;
 import ru.javaops.masterjava.persist.model.UserFlag;
+import ru.javaops.masterjava.xml.schema.CityType;
+import ru.javaops.masterjava.xml.schema.GroupType;
 import ru.javaops.masterjava.xml.schema.ObjectFactory;
 import ru.javaops.masterjava.xml.util.JaxbParser;
 import ru.javaops.masterjava.xml.util.StaxStreamProcessor;
@@ -23,6 +27,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class UserProcessor {
@@ -30,6 +35,7 @@ public class UserProcessor {
 
     private static final JaxbParser jaxbParser = new JaxbParser(ObjectFactory.class);
     private static UserDao userDao = DBIProvider.getDao(UserDao.class);
+    private static CityDao cityDao = DBIProvider.getDao(CityDao.class);
 
     private ExecutorService executorService = Executors.newFixedThreadPool(NUMBER_THREADS);
 
@@ -57,9 +63,25 @@ public class UserProcessor {
         val processor = new StaxStreamProcessor(is);
         val unmarshaller = jaxbParser.createUnmarshaller();
 
-        while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
+        List<City> cities = new ArrayList<>();
+
+        boolean cityF = false;
+        while (processor.doUntil(XMLEvent.START_ELEMENT, "City", cityF)) {
+            CityType cityType = unmarshaller.unmarshal(processor.getReader(), CityType.class);
+            City city = new City(cityType.getId(), cityType.getValue());
+            cities.add(city);
+            cityF = true;
+        }
+
+        cityDao.insertBatch(cities);
+
+        while (processor.doUntil(XMLEvent.START_ELEMENT, "User", false)) {
             ru.javaops.masterjava.xml.schema.User xmlUser = unmarshaller.unmarshal(processor.getReader(), ru.javaops.masterjava.xml.schema.User.class);
-            final User user = new User(id++, xmlUser.getValue(), xmlUser.getEmail(), UserFlag.valueOf(xmlUser.getFlag().value()));
+            final User user = new User(id++, xmlUser.getValue(), xmlUser.getEmail(), UserFlag.valueOf(xmlUser.getFlag().value()), null, null);
+                 /*   , ((CityType) xmlUser.getCity()).getId()
+                    , xmlUser.getGroupRefs().stream()
+                    .map(g -> ((GroupType)g).value())
+                    .collect(Collectors.toSet()));*/
             chunk.add(user);
             if (chunk.size() == chunkSize) {
                 addChunkFutures(chunkFutures, chunk);

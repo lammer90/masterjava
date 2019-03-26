@@ -3,6 +3,8 @@ package ru.javaops.masterjava.persist.model;
 import com.bertoncelj.jdbi.entitymapper.Column;
 import lombok.*;
 
+import java.util.Set;
+
 @Data
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -13,8 +15,13 @@ public class User extends BaseEntity {
     private @NonNull String email;
     private @NonNull UserFlag flag;
 
-    public User(Integer id, String fullName, String email, UserFlag flag) {
+    private String city;
+    private Set<String> groups;
+
+    public User(Integer id, String fullName, String email, UserFlag flag, String city, Set<String> groups) {
         this(fullName, email, flag);
+        this.city = city;
+        this.groups = groups;
         this.id=id;
     }
 }
