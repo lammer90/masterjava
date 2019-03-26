@@ -75,18 +75,22 @@ public class UserProcessor {
 
         cityDao.insertBatch(cities);
 
+        List<FailedEmails> failed = new ArrayList<>();
+
         while (processor.doUntil(XMLEvent.START_ELEMENT, "User", false)) {
+            String ref = processor.getAttribute("city");
             ru.javaops.masterjava.xml.schema.User xmlUser = unmarshaller.unmarshal(processor.getReader(), ru.javaops.masterjava.xml.schema.User.class);
-            final User user = new User(id++, xmlUser.getValue(), xmlUser.getEmail(), UserFlag.valueOf(xmlUser.getFlag().value()), null, null);
-                 /*   , ((CityType) xmlUser.getCity()).getId()
-                    , xmlUser.getGroupRefs().stream()
-                    .map(g -> ((GroupType)g).value())
-                    .collect(Collectors.toSet()));*/
-            chunk.add(user);
-            if (chunk.size() == chunkSize) {
-                addChunkFutures(chunkFutures, chunk);
-                chunk = new ArrayList<>(chunkSize);
-                id = userDao.getSeqAndSkip(chunkSize);
+            final User user = new User(id++, xmlUser.getValue(), xmlUser.getEmail(), UserFlag.valueOf(xmlUser.getFlag().value()), ref);
+
+            if (cities.stream().filter(c -> c.getId().equals(ref)).count() == 0) {
+                failed.add(new FailedEmails(user.getEmail(), "Wrong City ID"));
+            } else {
+                chunk.add(user);
+                if (chunk.size() == chunkSize) {
+                    addChunkFutures(chunkFutures, chunk);
+                    chunk = new ArrayList<>(chunkSize);
+                    id = userDao.getSeqAndSkip(chunkSize);
+                }
             }
         }
 
@@ -94,7 +98,7 @@ public class UserProcessor {
             addChunkFutures(chunkFutures, chunk);
         }
 
-        List<FailedEmails> failed = new ArrayList<>();
+
         List<String> allAlreadyPresents = new ArrayList<>();
         chunkFutures.forEach((emailRange, future) -> {
             try {
