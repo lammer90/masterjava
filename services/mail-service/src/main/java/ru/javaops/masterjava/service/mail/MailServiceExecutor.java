@@ -1,11 +1,16 @@
 package ru.javaops.masterjava.service.mail;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.EmailException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class MailServiceExecutor {
     private static final String OK = "OK";
 
@@ -15,11 +20,11 @@ public class MailServiceExecutor {
 
     private final ExecutorService mailExecutor = Executors.newFixedThreadPool(8);
 
-    public GroupResult sendToList(final String template, final Set<String> emails) throws Exception {
+    public GroupResult sendToList(final String subject, final String template, final Set<String> emails) throws Exception {
         final CompletionService<MailResult> completionService = new ExecutorCompletionService<>(mailExecutor);
 
         List<Future<MailResult>> futures = emails.stream()
-                .map(email -> completionService.submit(() -> sendToUser(template, email)))
+                .map(email -> completionService.submit(() -> sendToUser(subject, template, email)))
                 .collect(Collectors.toList());
 
         return new Callable<GroupResult>() {
@@ -83,12 +88,11 @@ public class MailServiceExecutor {
     }
 
     // dummy realization
-    public MailResult sendToUser(String template, String email) throws Exception {
+    public MailResult sendToUser(String subject, String template, String email) throws Exception {
         try {
-            Thread.sleep(500);  //delay
-        } catch (InterruptedException e) {
-            // log cancel;
-            return null;
+
+        } catch (Exception e) {
+            log.info("Error");
         }
         return Math.random() < 0.7 ? MailResult.ok(email) : MailResult.error(email, "Error");
     }
