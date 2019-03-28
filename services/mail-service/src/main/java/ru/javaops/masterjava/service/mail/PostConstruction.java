@@ -13,6 +13,7 @@ import java.util.Properties;
 public class PostConstruction {
 
     private final static Properties prop = new Properties();
+    private final static Properties props = new Properties();
     private static String NAME;
     private static String HOST;
     private static Integer PORT;
@@ -36,22 +37,20 @@ public class PostConstruction {
             TLS = Boolean.getBoolean(prop.getProperty("mail.useTLS"));
             DEBUG = Boolean.getBoolean(prop.getProperty("mail.debug"));
             NAME = prop.getProperty("mail.name");
+
+            props.put("mail.smtp.host", HOST);
+            props.put("mail.smtp.port", PORT);
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.socketFactory.port", PORT);
+            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            props.put("mail.smtp.socketFactory.fallback", "false");
+            props.put("mail.smtp.ssl", SSL);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static TransportSender getNewEmail() throws EmailException, MessagingException {
-
-        Properties props = new Properties();
-        props.put("mail.smtp.host", HOST);
-        props.put("mail.smtp.port", PORT);
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.socketFactory.port", PORT);
-        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        props.put("mail.smtp.socketFactory.fallback", "false");
-        props.put("mail.smtp.ssl", SSL);
-
+    public static TransportSender getNewEmail() throws MessagingException {
         Authenticator authenticator = new DefaultAuthenticator(EMAIL, PASSWORD);
         Session session = Session.getDefaultInstance(props, authenticator);
         session.setDebug(true);
@@ -62,16 +61,17 @@ public class PostConstruction {
         Transport transport = session.getTransport("smtp");
         transport.connect(HOST, PORT, EMAIL, PASSWORD);
 
-        return (TransportSender) (text, subject, adr) -> {
+        return (TransportSender) (text, subject, adr, cc) -> {
             message.setSubject(subject);
             message.setText(text);
             message.setRecipients(Message.RecipientType.TO, adr);
+            message.setRecipients(Message.RecipientType.CC, cc);
             transport.sendMessage(message, message.getAllRecipients());
             transport.close();
         };
     }
 
     public interface TransportSender {
-        void send(String text, String subject, String adr) throws MessagingException;
+        void send(String text, String subject, String adr, String cc) throws MessagingException;
     }
 }

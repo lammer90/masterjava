@@ -17,6 +17,8 @@
     <name>Mail Service</name>
 
     <dependencies>
+
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>mail-api</artifactId>
@@ -28,6 +30,12 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-email</artifactId>
             <version>1.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>persist</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
