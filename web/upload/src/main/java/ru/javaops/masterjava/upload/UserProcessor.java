@@ -49,6 +49,7 @@ public class UserProcessor {
         List<User> chunk = new ArrayList<>(chunkSize);
         val unmarshaller = jaxbParser.createUnmarshaller();
         List<FailedEmails> failed = new ArrayList<>();
+        List<String> allErrorEmails = new ArrayList<>();
 
         while (processor.doUntil(XMLEvent.START_ELEMENT, "User")) {
             String cityRef = processor.getAttribute("city");  // unmarshal doesn't get city ref
@@ -65,6 +66,7 @@ public class UserProcessor {
             ru.javaops.masterjava.xml.schema.User xmlUser = unmarshaller.unmarshal(processor.getReader(), ru.javaops.masterjava.xml.schema.User.class);
             if (cities.get(cityRef) == null) {
                 failed.add(new FailedEmails(xmlUser.getEmail(), "City '" + cityRef + "' is not present in DB"));
+                allErrorEmails.add(xmlUser.getEmail());
             } else {
                 final User user = new User(id++, xmlUser.getValue(), xmlUser.getEmail(), UserFlag.valueOf(xmlUser.getFlag().value()), cityRef);
                 userIdGroups.put(new Pair(id - 1, xmlUser.getEmail()), groupsRef);
@@ -87,6 +89,7 @@ public class UserProcessor {
                 List<String> alreadyPresentsInChunk = future.get();
                 log.info("{} successfully executed with already presents: {}", emailRange, alreadyPresentsInChunk);
                 allAlreadyPresents.addAll(alreadyPresentsInChunk);
+                allErrorEmails.addAll(alreadyPresentsInChunk);
             } catch (InterruptedException | ExecutionException e) {
                 log.error(emailRange + " failed", e);
                 failed.add(new FailedEmails(emailRange, e.toString()));
@@ -99,7 +102,11 @@ public class UserProcessor {
         UserGroupDao userGroupDao = DBIProvider.getDao(UserGroupDao.class);
         List<UserGroup> userGroups = new ArrayList<>();
         userIdGroups.forEach((pair, list) -> {
-                    list.forEach(grRef -> userGroups.add(new UserGroup(pair.getKey(), grRef)));
+                    list.forEach(grRef -> {
+                        if (!allErrorEmails.contains(pair.getEmail())){
+                            userGroups.add(new UserGroup(pair.getKey(), grRef));
+                        }
+                    });
                 }
         );
 
