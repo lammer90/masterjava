@@ -1,8 +1,11 @@
 package ru.javaops.masterjava.service.mail;
 
+import com.google.common.io.Resources;
 import com.sun.mail.smtp.SMTPMessage;
+import com.typesafe.config.Config;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailException;
+import ru.javaops.masterjava.config.Configs;
 
 import javax.mail.*;
 import java.io.FileInputStream;
@@ -26,7 +29,7 @@ public class PostConstruction {
 
     static {
         try {
-            InputStream in = new FileInputStream("C:/masterjava/services/mail-service/src/main/resources/mail.conf");
+            InputStream in = Resources.getResource("mail.conf").openStream();
             prop.load(in);
             HOST = prop.getProperty("mail.host");
             PORT = Integer.parseInt(prop.getProperty("mail.port"));
