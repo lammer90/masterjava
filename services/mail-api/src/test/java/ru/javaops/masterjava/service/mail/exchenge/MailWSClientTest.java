@@ -1,15 +1,18 @@
-package ru.javaops.masterjava.service.mail;
+package ru.javaops.masterjava.service.mail.exchenge;
 
 import com.google.common.io.Resources;
 import lombok.extern.slf4j.Slf4j;
+import ru.javaops.masterjava.service.mail.auto.Addressee;
+import ru.javaops.masterjava.service.mail.auto.MailService;
 import ru.javaops.masterjava.web.WsClient;
 
 import javax.xml.namespace.QName;
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
 public class MailWSClientTest {
-  /*  private static final WsClient<> WS_CLIENT;
+    private static final WsClient<MailService> WS_CLIENT;
 
     static {
         WS_CLIENT = new WsClient<>(Resources.getResource("mailService.wsdl"),
@@ -20,8 +23,8 @@ public class MailWSClientTest {
     }
 
 
-    public static void sendToGroup(final Set<> to, final Set<> cc, final String subject, final String body) {
+    public static void sendToGroup(final List<Addressee> to, final List<Addressee> cc, final String subject, final String body) {
         log.info("Send mail to '" + to + "' cc '" + cc + "' subject '" + subject + (log.isDebugEnabled() ? "\nbody=" + body : ""));
         WS_CLIENT.getPort().sendToGroup(to, cc, subject, body);
-    }*/
+    }
 }
