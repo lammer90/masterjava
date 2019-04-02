@@ -16,6 +16,17 @@
     <packaging>jar</packaging>
     <name>Common</name>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>${masterjava.config}</directory>
+                <includes>
+                    <include>mailService.wsdl</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
     <dependencies>
         <!-- Logging with SLF4J & LogBack -->
         <dependency>
