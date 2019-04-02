@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableSet;
 
 public class MailWSClientMain {
     public static void main(String[] args) {
-        MailWSClient.sendToGroup(
+       /* MailWSClientTest.sendToGroup(
                 ImmutableSet.of(new Addressee("To <lammer.90@yandex.ru>")),
-                ImmutableSet.of(new Addressee("Copy <lammer.90@yandex.ru>")), "Subject", "Body");
+                ImmutableSet.of(new Addressee("Copy <lammer.90@yandex.ru>")), "Subject", "Body");*/
     }
 }
