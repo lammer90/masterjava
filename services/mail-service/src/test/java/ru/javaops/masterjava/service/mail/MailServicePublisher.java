@@ -15,8 +15,9 @@ public class MailServicePublisher {
         DBITestProvider.initDBI();
 
         Endpoint endpoint = Endpoint.create(new MailServiceImpl());
-        List<Source> metadata = ImmutableList.of(
-                new StreamSource(Configs.getConfigFile("wsdl/mailService.wsdl")));
+        List<Source> metadata = ImmutableList.of();
+                /*new StreamSource(Configs.getConfigFile("wsdl/mailService.wsdl")),
+                new StreamSource(Configs.getConfigFile("wsdl/common.xsd")));*/
 
         endpoint.setMetadata(metadata);
         endpoint.publish("http://localhost:8080/mail/mailService");
