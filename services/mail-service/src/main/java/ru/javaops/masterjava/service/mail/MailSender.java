@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
 import ru.javaops.masterjava.ExceptionType;
 import ru.javaops.masterjava.persist.DBIProvider;
@@ -11,6 +12,11 @@ import ru.javaops.masterjava.service.mail.persist.MailCase;
 import ru.javaops.masterjava.service.mail.persist.MailCaseDao;
 import ru.javaops.web.WebStateException;
 
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
 @Slf4j
@@ -18,11 +24,11 @@ public class MailSender {
     private static final MailCaseDao MAIL_CASE_DAO = DBIProvider.getDao(MailCaseDao.class);
 
     static MailResult sendTo(Addressee to, String subject, String body) throws WebStateException {
-        val state = sendToGroup(ImmutableSet.of(to), ImmutableSet.of(), subject, body);
+        val state = sendToGroup(ImmutableSet.of(to), ImmutableSet.of(), subject, body, Paths.get(""));
         return new MailResult(to.getEmail(), state);
     }
 
-    static String sendToGroup(Set<Addressee> to, Set<Addressee> cc, String subject, String body) throws WebStateException {
+    static String sendToGroup(Set<Addressee> to, Set<Addressee> cc, String subject, String body, Path file) throws WebStateException {
         log.info("Send mail to \'" + to + "\' cc \'" + cc + "\' subject \'" + subject + (log.isDebugEnabled() ? "\nbody=" + body : ""));
         String state = MailResult.OK;
         try {
@@ -38,6 +44,16 @@ public class MailSender {
 
             //  https://yandex.ru/blog/company/66296
             email.setHeaders(ImmutableMap.of("List-Unsubscribe", "<mailto:masterjava@javaops.ru?subject=Unsubscribe&body=Unsubscribe>"));
+
+            if (Files.exists(file)){
+                /*EmailAttachment attachment = new EmailAttachment();
+                attachment.setPath(attachmentFile);
+                *//*attachment.setDisposition(EmailAttachment.ATTACHMENT);
+                attachment.setDescription("Picture of John");*//*
+                attachment.setName("File");*/
+
+                email.attach(file.toFile());
+            }
 
             email.send();
         } catch (EmailException e) {

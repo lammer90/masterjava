@@ -21,7 +21,7 @@ public class UsersServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final WebContext webContext = new WebContext(req, resp, req.getServletContext(), req.getLocale(),
-                ImmutableMap.of("users", userDao.getWithLimit(20)));
+                ImmutableMap.of());
         engine.process("users", webContext, resp.getWriter());
     }
 }
