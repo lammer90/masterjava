@@ -89,19 +89,6 @@ public abstract class SoapLoggingHandlers extends SoapBaseHandler {
         public abstract void handleMessage(MessageHandlerContext mhc, boolean isRequest);
 
         public abstract void handleFault(MessageHandlerContext mhc);
-
-        protected static String getMessageText(Message msg) {
-            try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                XMLStreamWriter writer = XMLStreamWriterFactory.create(out, "UTF-8");
-                IndentingXMLStreamWriter wrap = new IndentingXMLStreamWriter(writer);
-                msg.writeTo(wrap);
-                return out.toString(StandardCharsets.UTF_8.name());
-            } catch (Exception e) {
-                log.warn("Coudn't get SOAP message for logging", e);
-                return null;
-            }
-        }
     }
 
     abstract protected boolean isRequest(boolean isOutbound);
