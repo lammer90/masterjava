@@ -16,13 +16,13 @@ public class SoapServerSecurityHandler extends SoapBaseHandler {
     @Override
     public boolean handleMessage(MessageHandlerContext context) {
         log.info("Get request, change password");
-        /*Map<String, List<String>> headers = (Map<String, List<String>>) context.get(MessageContext.HTTP_REQUEST_HEADERS);
+        Map<String, List<String>> headers = (Map<String, List<String>>) context.get(MessageContext.HTTP_REQUEST_HEADERS);
 
         int code = AuthUtil.checkBasicAuth(headers, AUTH_HEADER);
         if (code != 0) {
             context.put(MessageContext.HTTP_RESPONSE_CODE, code);
             throw new SecurityException();
-        }*/
+        }
         return true;
     }
 
